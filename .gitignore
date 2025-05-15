@@ -1,0 +1,13 @@
+# Base de datos SQLite
+db.sqlite3
+*.sqlite3
+
+# Archivos compilados de Python y cachés
+__pycache__/
+*.pyc
+
+# Directorio de media (si no quieres que los archivos subidos por usuarios se versionen)
+# Considera esto según tus necesidades. Si tienes archivos multimedia
+# que SÍ deben estar en el repo (ej. imágenes base del sitio),
+# sé más específico con las reglas o no incluyas media/ aquí.
+# media/
