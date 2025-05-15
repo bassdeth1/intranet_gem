@@ -1,0 +1,361 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title_tag %}Gestor de Archivos{% endblock %}
+{% block page_title_header %}Gestor de Archivos{% endblock %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+    <h2 class="text-2xl font-semibold text-main-primary dark:text-blue-400">Gestor de Archivos</h2>
+    <button type="button" onclick="document.getElementById('modal-crear-carpeta').classList.remove('hidden'); document.getElementById('modal-crear-carpeta').querySelector('input[name=\'nombre\']').focus();" 
+            class="bg-main-secondary hover:bg-main-secondary-dark text-main-white font-medium py-2 px-4 rounded-md flex items-center text-sm transition-colors duration-150">
+        <i class="fas fa-folder-plus mr-2"></i> Nueva Carpeta
+    </button>
+</div>
+
+{# Modal para Crear Carpeta #}
+<div id="modal-crear-carpeta" class="fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full flex items-center justify-center hidden z-50 transition-opacity duration-300 ease-out" onclick="event.target === this && this.classList.add('hidden')">
+    <div class="relative mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-card dark:bg-gray-800" onclick="event.stopPropagation();">
+        <div class="mt-3">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100">Crear Nueva Carpeta</h3>
+                <button type="button" onclick="document.getElementById('modal-crear-carpeta').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <i class="fas fa-times fa-lg"></i>
+                </button>
+            </div>
+            <form method="POST" action="{% url 'intranet_core:carga_archivos' %}" class="space-y-4">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="create_folder">
+                <div>
+                    <label for="{{ form_crear_carpeta.nombre.id_for_label }}" class="sr-only">{{ form_crear_carpeta.nombre.label }}</label>
+                    {{ form_crear_carpeta.nombre }} {# Widget ya tiene clases de forms.py #}
+                    {% if form_crear_carpeta.nombre.errors %}
+                        {% for error in form_crear_carpeta.nombre.errors %}
+                            <p class="mt-1 text-xs text-red-600 dark:text-red-400"><i class="fas fa-exclamation-triangle mr-1"></i>{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                     {% if form_crear_carpeta.non_field_errors %} {# Errores generales del form de carpeta, ej. unique_together #}
+                        {% for error in form_crear_carpeta.non_field_errors %}
+                            <p class="mt-1 text-xs text-red-600 dark:text-red-400"><i class="fas fa-exclamation-triangle mr-1"></i>{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="flex justify-end items-center pt-3 space-x-3">
+                    <button type="button" onclick="document.getElementById('modal-crear-carpeta').classList.add('hidden')" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 text-base font-medium rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 dark:focus:ring-offset-gray-800">
+                        Cancelar
+                    </button>
+                    <button id="ok-btn-crear-carpeta" type="submit" class="px-4 py-2 bg-main-primary text-white text-base font-medium rounded-md hover:bg-main-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-main-primary-dark dark:focus:ring-offset-gray-800">
+                        Crear Carpeta
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{# Sección de mensajes de Django #}
+<div id="django-messages-container" class="mb-6 space-y-3">
+{% if messages %}
+    {% for message in messages %}
+        <div class="p-4 rounded-md text-sm {% if message.tags == 'success' %}bg-green-100 border border-green-300 text-green-700 dark:bg-green-800 dark:border-green-600 dark:text-green-200{% elif message.tags == 'error' %}bg-red-100 border border-red-300 text-red-700 dark:bg-red-800 dark:border-red-600 dark:text-red-200{% else %}bg-blue-100 border border-blue-300 text-blue-700 dark:bg-blue-800 dark:border-blue-600 dark:text-blue-200{% endif %}" role="alert">
+            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %} mr-2"></i>
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+</div>
+
+
+{# Formulario para subir archivos #}
+<div class="bg-card dark:bg-gray-800 p-6 md:p-8 rounded-xl shadow-lg mb-8">
+    <h3 class="text-xl font-semibold text-default dark:text-gray-100 mb-5 border-b border-gray-200 dark:border-gray-700 pb-3">Subir Nuevo Archivo</h3>
+    <form method="POST" enctype="multipart/form-data" action="{% url 'intranet_core:carga_archivos' %}" class="space-y-6">
+        {% csrf_token %} {# No action input aquí, la vista lo detectará como subida de archivo por defecto #}
+
+        {% if form_carga_archivo.non_field_errors %}
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 dark:bg-red-800 dark:border-red-600 dark:text-red-200" role="alert">
+                <p class="font-bold">Error general al subir archivo:</p>
+                <ul class="mt-1 list-disc list-inside text-sm">
+                {% for error in form_carga_archivo.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <div>
+            <label for="{{ form_carga_archivo.nombre_descriptivo.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ form_carga_archivo.nombre_descriptivo.label }}</label>
+            {{ form_carga_archivo.nombre_descriptivo }}
+            {% if form_carga_archivo.nombre_descriptivo.help_text %}<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">{{ form_carga_archivo.nombre_descriptivo.help_text }}</p>{% endif %}
+            {% for error in form_carga_archivo.nombre_descriptivo.errors %}<p class="mt-1 text-xs text-red-600 dark:text-red-400"><i class="fas fa-exclamation-triangle mr-1"></i>{{ error }}</p>{% endfor %}
+        </div>
+
+        <div>
+            <label for="{{ form_carga_archivo.archivo_subido.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ form_carga_archivo.archivo_subido.label }}</label>
+            {{ form_carga_archivo.archivo_subido }}
+            <p id="file-upload-filename" class="mt-2 text-xs text-gray-500 dark:text-gray-400"></p>
+            {% if form_carga_archivo.archivo_subido.help_text %}<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">{{ form_carga_archivo.archivo_subido.help_text }}</p>{% endif %}
+            {% for error in form_carga_archivo.archivo_subido.errors %}<p class="mt-1 text-xs text-red-600 dark:text-red-400"><i class="fas fa-exclamation-triangle mr-1"></i>{{ error }}</p>{% endfor %}
+        </div>
+        
+        {% if form_carga_archivo.fields.carpeta %}
+        <div>
+            <label for="{{ form_carga_archivo.carpeta.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ form_carga_archivo.carpeta.label }}</label>
+            {{ form_carga_archivo.carpeta }}
+            {% if form_carga_archivo.carpeta.help_text %}<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">{{ form_carga_archivo.carpeta.help_text }}</p>{% endif %}
+            {% for error in form_carga_archivo.carpeta.errors %}<p class="mt-1 text-xs text-red-600 dark:text-red-400"><i class="fas fa-exclamation-triangle mr-1"></i>{{ error }}</p>{% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="pt-2">
+            <button type="submit" class="w-full md:w-auto bg-main-primary hover:bg-main-primary-dark text-main-white font-semibold py-2.5 px-6 rounded-lg flex items-center justify-center text-sm transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-main-primary-dark dark:focus:ring-offset-gray-800">
+                <i class="fas fa-upload mr-2"></i> Subir Archivo
+            </button>
+        </div>
+    </form>
+</div>
+
+{# Listado de Carpetas y Archivos #}
+<div class="bg-card dark:bg-gray-800 p-6 md:p-8 rounded-xl shadow-lg">
+    <h3 class="text-xl font-semibold text-default dark:text-gray-100 mb-5 border-b border-gray-200 dark:border-gray-700 pb-3">
+        Mis Archivos y Carpetas (Raíz)
+        {# Aquí irían breadcrumbs si se implementa navegación de carpetas #}
+    </h3>
+    
+    {% if carpetas %}
+    <div class="mb-8">
+        <h4 class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Carpetas</h4>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            {% for carpeta_item in carpetas %}
+            {# El enlace '#' es un placeholder. Para navegación real, apuntaría a una URL con el ID de la carpeta. #}
+            <a href="#" class="group block p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-all duration-200 ease-in-out shadow hover:shadow-md text-center">
+                <i class="fas fa-folder fa-3x text-yellow-500 dark:text-yellow-400 mb-2 group-hover:scale-110 transition-transform"></i>
+                <span class="text-sm font-medium text-gray-800 dark:text-gray-200 block truncate" title="{{ carpeta_item.nombre }}">{{ carpeta_item.nombre }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <h4 class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-3 {% if carpetas %}mt-8 pt-4 border-t border-gray-200 dark:border-gray-700{% endif %}">Archivos en Raíz</h4>
+    {% if archivos_subidos %}
+        <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-750">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Nombre Descriptivo</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Archivo Original</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Subido el</th>
+                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="file-list-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {% for archivo in archivos_subidos %}
+                    <tr id="archivo-row-{{ archivo.id }}" class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-100">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{{ archivo.nombre_descriptivo|truncatechars:40|default:"-" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">{{ archivo.nombre_original_archivo|truncatechars:30 }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">{{ archivo.fecha_subida|date:"d/m/Y, H:i" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                            <div class="flex justify-center items-center space-x-3">
+                                {# Botón Ver #}
+                                {% if archivo.is_viewable_in_browser %}
+                                    <a href="{{ archivo.get_view_url }}" target="_blank" class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors duration-150" title="Ver {{ archivo.nombre_original_archivo }}">
+                                        <i class="fas fa-eye fa-fw"></i>
+                                    </a>
+                                {% else %}
+                                    {# Opcional: mostrar un ícono deshabilitado si no es visualizable, o no mostrar nada #}
+                                    <span class="text-gray-400 dark:text-gray-500 cursor-not-allowed" title="Vista previa no disponible">
+                                        <i class="fas fa-eye-slash fa-fw"></i>
+                                    </span>
+                                {% endif %}
+
+                                {# Botón Editar #}
+                                <a href="{{ archivo.get_edit_url }}" class="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 transition-colors duration-150" title="Editar {{ archivo.nombre_descriptivo|default:archivo.nombre_original_archivo }}">
+                                    <i class="fas fa-edit fa-fw"></i>
+                                </a>
+
+                                {# Botón Descargar #}
+                                <a href="{{ archivo.archivo_subido.url }}" download="{{ archivo.nombre_original_archivo }}" class="text-main-primary hover:text-main-primary-dark dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-150" title="Descargar {{ archivo.nombre_original_archivo }}">
+                                    <i class="fas fa-download fa-fw"></i>
+                                </a>
+                                
+                                {# Formulario Eliminar #}
+                                <form action="{% url 'intranet_core:carga_archivos' %}" method="POST" class="inline delete-file-form" data-confirm-message="¿Estás seguro de que quieres eliminar '{{ archivo.nombre_descriptivo|escapejs|default:archivo.nombre_original_archivo|escapejs }}'? Esta acción no se puede deshacer.">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="delete_file">
+                                    <input type="hidden" name="file_id" value="{{ archivo.id }}">
+                                    <button type="submit" class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-150" title="Eliminar {{ archivo.nombre_descriptivo|default:archivo.nombre_original_archivo }}">
+                                        <i class="fas fa-trash-alt fa-fw"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+    
+    {% if not carpetas and not archivos_subidos %}
+         <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-10 text-center mt-8">
+            <i class="fas fa-folder-open fa-3x text-gray-400 dark:text-gray-500 mb-4"></i>
+            <p class="text-lg font-medium text-gray-700 dark:text-gray-300">Tu gestor de archivos está vacío.</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Empieza creando una carpeta o subiendo un archivo.</p>
+        </div>
+    {% elif not archivos_subidos and carpetas %}
+        <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-10 text-center mt-4">
+            <i class="fas fa-file-alt fa-3x text-gray-400 dark:text-gray-500 mb-4"></i>
+            <p class="text-lg font-medium text-gray-700 dark:text-gray-300">No hay archivos en la raíz.</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Puedes subir archivos a la raíz o dentro de las carpetas existentes.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Mostrar nombre de archivo seleccionado en el formulario de subida principal
+    const fileInputPrincipal = document.querySelector('form[action="{% url "intranet_core:carga_archivos" %}"] input[type="file"][name="archivo_subido"]');
+    const fileUploadFilenameDisplayPrincipal = document.getElementById('file-upload-filename');
+    if (fileInputPrincipal && fileUploadFilenameDisplayPrincipal) {
+        fileInputPrincipal.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files.length > 0) {
+                fileUploadFilenameDisplayPrincipal.textContent = 'Seleccionado: ' + e.target.files[0].name;
+            } else {
+                fileUploadFilenameDisplayPrincipal.textContent = '';
+            }
+        });
+    }
+
+    // Manejo de mensajes de Django dinámicos para AJAX
+    const messagesContainer = document.getElementById('django-messages-container');
+    function showDynamicMessage(message, tags) {
+        if (!messagesContainer) return;
+        
+        let bgColor, borderColor, textColor, iconClass;
+        if (tags.includes('success')) {
+            bgColor = 'bg-green-100 dark:bg-green-800';
+            borderColor = 'border-green-300 dark:border-green-600';
+            textColor = 'text-green-700 dark:text-green-200';
+            iconClass = 'fa-check-circle';
+        } else if (tags.includes('error')) {
+            bgColor = 'bg-red-100 dark:bg-red-800';
+            borderColor = 'border-red-300 dark:border-red-600';
+            textColor = 'text-red-700 dark:text-red-200';
+            iconClass = 'fa-exclamation-circle';
+        } else {
+            bgColor = 'bg-blue-100 dark:bg-blue-800';
+            borderColor = 'border-blue-300 dark:border-blue-600';
+            textColor = 'text-blue-700 dark:text-blue-200';
+            iconClass = 'fa-info-circle';
+        }
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `p-4 rounded-md text-sm ${bgColor} border ${borderColor} ${textColor} shadow`;
+        messageDiv.setAttribute('role', 'alert');
+        messageDiv.innerHTML = `<i class="fas ${iconClass} mr-2"></i> ${message}`;
+        
+        messagesContainer.insertBefore(messageDiv, messagesContainer.firstChild);
+        setTimeout(() => {
+            messageDiv.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+            messageDiv.style.opacity = '0';
+            messageDiv.style.transform = 'translateY(-20px)';
+            setTimeout(() => messageDiv.remove(), 500);
+        }, 5000);
+    }
+
+
+    // Eliminación de archivos con AJAX
+    const fileListBody = document.getElementById('file-list-body');
+    if (fileListBody) {
+        fileListBody.addEventListener('submit', function(event) {
+            if (!event.target.classList.contains('delete-file-form')) {
+                return;
+            }
+            event.preventDefault();
+            const form = event.target;
+            
+            const confirmMessage = form.getAttribute('data-confirm-message');
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+
+            const formData = new FormData(form);
+            const url = form.action;
+            // const fileId = formData.get('file_id'); // No es necesario aquí si se usa data.file_id de la respuesta
+
+            fetch(url, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken'), 
+                    'X-Requested-With': 'XMLHttpRequest',
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    // Intenta parsear el error JSON si existe, sino lanza error genérico
+                    return response.json().then(errData => { 
+                        throw {jsonError: errData, status: response.status}; 
+                    }).catch(() => {
+                        throw {message: `Error HTTP ${response.status}`, status: response.status};
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    const rowToRemove = document.getElementById('archivo-row-' + data.file_id);
+                    if (rowToRemove) {
+                        rowToRemove.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+                        rowToRemove.style.opacity = '0';
+                        rowToRemove.style.transform = 'scale(0.95)';
+                        setTimeout(() => rowToRemove.remove(), 300);
+                    }
+                    showDynamicMessage(data.message, 'success');
+                } else {
+                    showDynamicMessage(data.message || 'Error desconocido al procesar la solicitud.', 'error');
+                }
+            })
+            .catch(errorInfo => {
+                console.error('Error en la petición AJAX:', errorInfo);
+                let errorMessageToShow = 'Error de conexión o respuesta inesperada del servidor.';
+                if (errorInfo && errorInfo.jsonError && errorInfo.jsonError.message) {
+                    errorMessageToShow = errorInfo.jsonError.message;
+                } else if (errorInfo && errorInfo.message) {
+                    errorMessageToShow = errorInfo.message;
+                }
+                showDynamicMessage(errorMessageToShow, 'error');
+            });
+        });
+    }
+
+    // Lógica para mostrar el modal de creación de carpeta si hay errores en ese formulario
+    // Esto es útil si la página se recarga después de un intento fallido de crear carpeta
+    const modalCrearCarpeta = document.getElementById('modal-crear-carpeta');
+    if (modalCrearCarpeta) {
+        const carpetaFormErrores = modalCrearCarpeta.querySelectorAll('.text-red-600'); // Busca cualquier mensaje de error
+        if (carpetaFormErrores.length > 0) {
+            // Verifica si la acción que causó el error fue 'create_folder'
+            // Esto es un poco heurístico. Una mejor manera sería si la vista añade una variable de contexto específica.
+            // Por ahora, si hay errores en el form_crear_carpeta Y el modal está oculto, lo mostramos.
+            const urlParams = new URLSearchParams(window.location.search); // Para evitar mostrarlo si fue otra acción
+            if (modalCrearCarpeta.classList.contains('hidden') && !urlParams.has('upload_success')) { 
+                // Solo mostrar si no venimos de una subida exitosa (para evitar reabrirlo innecesariamente)
+                // Esta lógica puede necesitar refinamiento para saber exactamente cuándo mostrarlo.
+                // Si el form de carpeta tiene errores (lo cual es detectado por los mensajes de error dentro del modal),
+                // y no hay un mensaje de éxito de OTRA operación, podría ser una indicación.
+                // Comprobamos específicamente el error del campo nombre.
+                const nombreInput = modalCrearCarpeta.querySelector('input[name="nombre"]');
+                const sibling = nombreInput.nextElementSibling; // Asumiendo que el error está justo después
+                if (sibling && sibling.classList.contains('text-red-600')) {
+                     // modalCrearCarpeta.classList.remove('hidden'); // Descomentar si quieres este comportamiento con más precisión
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,534 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title_tag %}Diseñar Formulario: {{ formulario.titulo }}{% endblock %}
+{% block page_title_header %}Diseñar: <span class="font-normal">{{ formulario.titulo }}</span>{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-builder-container { 
+        display: flex; 
+        gap: 1.5rem; 
+        flex-wrap: wrap; /* Permite que la paleta se mueva abajo en pantallas pequeñas por defecto */
+    }
+    .form-fields-palette {
+        width: 100%; /* Ancho completo por defecto para móviles */
+        flex-shrink: 0;
+    }
+    .form-canvas {
+        flex-grow: 1;
+        min-height: 400px;
+        width: 100%; 
+    }
+
+    /* Media query para aplicar estilos en pantallas medianas (md) y mayores */
+    @media (min-width: 768px) { /* Este es el breakpoint 'md' por defecto de Tailwind (768px) */
+        .form-builder-container {
+            flex-wrap: nowrap; /* Evita que la paleta se mueva abajo en pantallas más grandes */
+        }
+        .form-fields-palette {
+            width: 280px; /* Ancho fijo para la paleta en pantallas más grandes */
+        }
+    }
+
+    .campo-form-item {
+        border: 1px solid #e2e8f0; /* Tailwind gray-200 */
+        background-color: #f9fafb; /* Tailwind gray-50 */
+        padding: 1rem;
+        border-radius: 0.5rem; /* Tailwind rounded-lg */
+        margin-bottom: 1rem;
+        position: relative;
+    }
+    .dark .campo-form-item {
+        border-color: #4b5563; /* Tailwind gray-600 */
+        background-color: #374151; /* Tailwind gray-700 */
+    }
+    .campo-form-item .field-controls {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        display: flex;
+        gap: 0.5rem;
+        z-index: 10;
+    }
+    .campo-form-item .field-controls button,
+    .campo-form-item .field-delete-existing-container input[type="checkbox"] { 
+        background-color: #e5e7eb; 
+        border: none;
+        border-radius: 0.25rem; 
+        padding: 0.25rem 0.5rem;
+        cursor: pointer;
+        font-size: 0.75rem; 
+        color: #374151; 
+        line-height: 1; 
+    }
+     .campo-form-item .field-delete-existing-container input[type="checkbox"] {
+        padding: 0; 
+        height: 1rem; width: 1rem; 
+        margin-right: 0.25rem; 
+        vertical-align: middle;
+    }
+    .dark .campo-form-item .field-controls button,
+    .dark .campo-form-item .field-delete-existing-container input[type="checkbox"] {
+        background-color: #4b5563; 
+        color: #e5e7eb; 
+    }
+    .dark .campo-form-item .field-delete-existing-container input[type="checkbox"] {
+         border-color: #6b7280; 
+    }
+    .campo-form-item .field-controls button:hover {
+        background-color: #d1d5db; 
+    }
+    .dark .campo-form-item .field-controls button:hover {
+        background-color: #6b7280; 
+    }
+    .field-drag-handle { cursor: grab; margin-right: 0.5rem; color: #9ca3af; padding: 0.5rem; } 
+    
+    .sortable-ghost { 
+        opacity: 0.4; 
+        background: #e0f2fe !important; 
+        border: 1px dashed #0ea5e9 !important; 
+    }
+    .sortable-chosen { 
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      opacity: 0.9;
+    }
+
+    .palette-button {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        text-align: left;
+        padding: 0.65rem 1rem;
+        margin-bottom: 0.5rem;
+        border-radius: 0.375rem;
+        background-color: #e9ecef; 
+        color: #495057; 
+        border: 1px solid #ced4da; 
+        transition: background-color 0.2s;
+        font-size: 0.875rem;
+    }
+    .dark .palette-button {
+        background-color: #495057; 
+        color: #f8f9fa; 
+        border-color: #6c757d;
+    }
+    .palette-button:hover {
+        background-color: #dde1e5; 
+    }
+    .dark .palette-button:hover {
+        background-color: #5a6268;
+    }
+    .palette-button i {
+        margin-right: 0.75rem;
+        width: 1.25em; 
+        text-align: center;
+    }
+    .field-delete-existing-label {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.75rem;
+        color: #ef4444;
+        cursor: pointer;
+        padding: 0.25rem 0.5rem;
+        background-color: #fee2e2;
+        border-radius: 0.25rem;
+    }
+    .dark .field-delete-existing-label {
+        color: #fca5a5;
+        background-color: #7f1d1d;
+    }
+    .field-delete-existing-label:hover {
+        background-color: #fecaca;
+    }
+    .dark .field-delete-existing-label:hover {
+        background-color: #991b1b;
+    }
+    .field-delete-existing-label input[type="checkbox"] {
+        margin-right: 0.375rem;
+        height: 1em; width: 1em;
+    }
+
+    .btn-primary {
+        background-color: var(--main-primary-bg, #0033A0);
+        color: var(--main-white-text, #FFFFFF);
+        padding: 0.5rem 1rem; 
+        border-radius: 0.375rem; 
+        font-weight: 500; 
+        transition: background-color 0.2s;
+    }
+    .btn-primary:hover {
+        background-color: var(--main-primary-dark-bg, #00227A);
+    }
+
+    .btn-secondary-outline {
+        background-color: transparent;
+        color: var(--main-primary-text, #0033A0); 
+        border: 1px solid var(--main-primary-border, #0033A0);
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        font-weight: 500;
+        transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+    }
+    .btn-secondary-outline:hover {
+        background-color: var(--main-primary-bg, #0033A0);
+        color: var(--main-white-text, #FFFFFF);
+    }
+    .dark .btn-secondary-outline {
+        color: var(--main-primary-text, #7dd3fc); 
+        border-color: var(--main-primary-border, #7dd3fc);
+    }
+    .dark .btn-secondary-outline:hover {
+         background-color: var(--main-primary-text, #7dd3fc);
+         color: var(--card-bg-color); /* Ajusta para que el texto tenga contraste */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6 p-4 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700/30">
+    <div class="flex justify-between items-start">
+        <div>
+            <h2 class="text-lg font-semibold text-default mb-1">{{ formulario.titulo }}</h2>
+            <p class="text-sm text-muted">{{ formulario.descripcion|default:"Sin descripción." }}</p>
+        </div>
+        {# Usar {% url %} directamente aquí como prueba para el NoReverseMatch #}
+        <a href="{% url 'intranet_core:formulario_llenar' formulario_id=formulario.id %}" target="_blank" class="text-sm btn-secondary-outline whitespace-nowrap ml-4">
+            <i class="fas fa-eye mr-1"></i> Vista Previa
+        </a>
+    </div>
+    <div class="mt-2 text-xs text-muted">
+        <span>Creado: {{ formulario.creado_el|date:"d M Y, H:i" }}</span>
+        {% if formulario.fecha_limite %} | <span>Límite: {{ formulario.fecha_limite|date:"d M Y, H:i" }}</span>{% endif %}
+        | <span>Estado: {% if formulario.activo %}Activo{% else %}Inactivo{% endif %}</span>
+    </div>
+</div>
+
+{% if messages %}
+    <div class="mb-6 space-y-3">
+    {% for message in messages %}
+        <div class="p-4 rounded-md text-sm {% if message.tags == 'success' %}bg-green-100 border border-green-300 text-green-700 dark:bg-green-800 dark:border-green-600 dark:text-green-200{% elif message.tags == 'error' %}bg-red-100 border border-red-300 text-red-700 dark:bg-red-800 dark:border-red-600 dark:text-red-200{% else %}bg-blue-100 border border-blue-300 text-blue-700 dark:bg-blue-800 dark:border-blue-600 dark:text-blue-200{% endif %}" role="alert">
+            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %} mr-2"></i>
+            {{ message }}
+        </div>
+    {% endfor %}
+    </div>
+{% endif %}
+
+<form method="POST" enctype="multipart/form-data" id="camposFormset">
+    {% csrf_token %}
+    {{ formset.management_form }}
+
+    <div class="form-builder-container md:flex-row flex-col"> 
+        <div class="form-fields-palette bg-card dark:bg-gray-800 p-4 rounded-lg shadow-md mb-6 md:mb-0 md:sticky md:top-6 self-start">
+            <h3 class="text-md font-semibold text-default mb-3 border-b border-gray-200 dark:border-gray-600 pb-2">Añadir Campo</h3>
+            {% for value, text in campo_tipos %}
+            <button type="button" class="palette-button add-field-from-palette" data-field-type="{{ value }}" title="Añadir campo de tipo: {{text}}">
+                <i class="fas {% if value == 'TEXTO_CORTO' %}fa-font{% elif value == 'TEXTO_LARGO' %}fa-paragraph{% elif value == 'NUMERO' %}fa-hashtag{% elif value == 'EMAIL' %}fa-at{% elif value == 'FECHA' %}fa-calendar-alt{% elif value == 'HORA' %}fa-clock{% elif value == 'OPCION_MULTIPLE' %}fa-dot-circle{% elif value == 'CASILLAS' %}fa-check-square{% elif value == 'DESPLEGABLE' %}fa-caret-square-down{% elif value == 'ARCHIVO' %}fa-file-upload{% else %}fa-question-circle{% endif %}"></i> {{ text }}
+            </button>
+            {% endfor %}
+        </div>
+
+        <div class="form-canvas flex-grow">
+            <div id="formset-container" class="space-y-3">
+                {% if not formset.forms and not formset.non_form_errors %} 
+                <div id="no-fields-message" class="text-center py-10 text-gray-500 dark:text-gray-400 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700/30">
+                    <i class="fas fa-hand-pointer fa-3x mb-3"></i>
+                    <p>Haz clic en un tipo de campo de la paleta para comenzar a construir tu formulario.</p>
+                </div>
+                {% endif %}
+
+                {% for form_campo in formset %}
+                <div class="campo-form-item" data-form-id="{{ form_campo.prefix }}">
+                    {{ form_campo.id }} 
+                    {{ form_campo.orden }} 
+
+                    <div class="field-controls">
+                        <button type="button" class="field-control-button move-field-up" title="Mover Arriba"><i class="fas fa-arrow-up"></i></button>
+                        <button type="button" class="field-control-button move-field-down" title="Mover Abajo"><i class="fas fa-arrow-down"></i></button>
+                        {% if formset.can_delete %}
+                            {% if form_campo.instance.pk %} 
+                            <span class="field-delete-existing-container" title="Marcar para Eliminar">
+                                {{ form_campo.DELETE }}
+                                <label for="{{ form_campo.DELETE.id_for_label }}" class="field-delete-existing-label"><i class="fas fa-trash-alt ml-1"></i></label>
+                            </span>
+                            {% else %} 
+                            <button type="button" class="field-control-button delete-new-campo-button text-red-600 hover:text-red-700" title="Eliminar Campo"><i class="fas fa-trash-alt"></i></button>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="flex items-center mb-3">
+                        <span class="field-drag-handle" title="Reordenar (arrastrar)"><i class="fas fa-grip-vertical"></i></span>
+                        <h5 class="text-sm font-semibold text-default">Campo #<span class="field-number">{{ forloop.counter }}</span>: <span class="field-type-display">{{ form_campo.instance.get_tipo_campo_display|default:"Nuevo Campo" }}</span></h5>
+                    </div>
+
+                    {% if form_campo.non_field_errors %}
+                        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 rounded mb-3 text-xs" role="alert">
+                            <strong>Errores generales para este campo:</strong>
+                            <ul class="list-disc list-inside ml-4">{% for error in form_campo.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>
+                        </div>
+                    {% endif %}
+                     {% for field in form_campo %}
+                        {% if field.name not in "id,orden,DELETE" %} 
+                            <div class="mb-3 {% if field.name == 'opciones_choices' %} md:col-span-2 campo-opciones-container {% if form_campo.instance.tipo_campo not in 'OPCION_MULTIPLE,CASILLAS,DESPLEGABLE' and not form_campo.initial.tipo_campo in 'OPCION_MULTIPLE,CASILLAS,DESPLEGABLE' %}hidden{% endif %} {% elif field.name == 'etiqueta' %} md:col-span-2 {% elif field.name == 'es_obligatorio' %} md:col-span-2 flex items-center {% endif %}">
+                                <label for="{{ field.id_for_label }}" class="block text-xs font-medium text-gray-600 dark:text-gray-400 {% if field.name == 'es_obligatorio' %}ml-2{% else %}mb-1{% endif %}">{{ field.label }} {% if field.field.required and field.name != 'es_obligatorio' %}<span class="text-red-500">*</span>{% endif %}</label>
+                                {{ field }}
+                                {% if field.help_text %}<p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ field.help_text }}</p>{% endif %}
+                                {% for error in field.errors %}<p class="mt-1 text-xs text-red-500 dark:text-red-400">{{ error }}</p>{% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div id="empty-form-template" class="hidden">
+        <div class="campo-form-item" data-form-id="{{ formset.empty_form.prefix }}">
+             {{ formset.empty_form.id }} 
+             {{ formset.empty_form.orden }} 
+            <div class="field-controls">
+                 <button type="button" class="field-control-button move-field-up" title="Mover Arriba"><i class="fas fa-arrow-up"></i></button>
+                 <button type="button" class="field-control-button move-field-down" title="Mover Abajo"><i class="fas fa-arrow-down"></i></button>
+                 <button type="button" class="field-control-button delete-new-campo-button text-red-600 hover:text-red-700" title="Eliminar Campo"><i class="fas fa-trash-alt"></i></button>
+            </div>
+            <div class="flex items-center mb-3">
+                <span class="field-drag-handle" title="Reordenar"><i class="fas fa-grip-vertical"></i></span>
+                <h5 class="text-sm font-semibold text-default">Campo #<span class="field-number"></span>: <span class="field-type-display"></span></h5>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
+                {% for field in formset.empty_form %}
+                    {% if field.name not in "id,orden,DELETE" %}
+                    <div class="mb-3 {% if field.name == 'opciones_choices' %} md:col-span-2 campo-opciones-container hidden {% elif field.name == 'etiqueta' %} md:col-span-2 {% elif field.name == 'es_obligatorio' %} md:col-span-2 flex items-center {% endif %}">
+                        <label for="{{ field.id_for_label }}" class="block text-xs font-medium text-gray-600 dark:text-gray-400 {% if field.name == 'es_obligatorio' %}ml-2{% else %}mb-1{% endif %}">{{ field.label }} {% if field.field.required and field.name != 'es_obligatorio' %}<span class="text-red-500">*</span>{% endif %}</label>
+                        {{ field }}
+                        {% if field.help_text %}<p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ field.help_text }}</p>{% endif %}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-8 flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <a href="{% url 'intranet_core:formularios' %}" class="btn-secondary-outline text-sm">Cancelar y Volver</a>
+        <button type="submit" class="btn-primary text-sm">
+            <i class="fas fa-save mr-2"></i> Guardar Diseño del Formulario
+        </button>
+    </div>
+</form>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const formsetContainer = document.getElementById('formset-container');
+    const totalFormsInput = document.querySelector('input[name$="-TOTAL_FORMS"]');
+    const formsetPrefix = '{{ formset.prefix }}';
+    const emptyFormHtmlTemplate = document.getElementById('empty-form-template').innerHTML;
+    const noFieldsMessage = document.getElementById('no-fields-message');
+    
+    const campoTiposJsonString = '{{ campo_tipos_json_string|escapejs|default:"{}" }}';
+    let campoTiposText = {};
+    try {
+        campoTiposText = JSON.parse(campoTiposJsonString);
+    } catch (e) {
+        console.error("Error al parsear campo_tipos_json_string:", e, "Valor recibido:", campoTiposJsonString);
+    }
+
+    function updateFormPresentation() {
+        const campoForms = formsetContainer.querySelectorAll('.campo-form-item');
+        campoForms.forEach((form, index) => {
+            const fieldNumberSpan = form.querySelector('.field-number');
+            if (fieldNumberSpan) fieldNumberSpan.textContent = index + 1;
+
+            const orderInput = form.querySelector('input[name$="-orden"]');
+            if (orderInput) orderInput.value = index;
+            
+            const upButton = form.querySelector('.move-field-up');
+            const downButton = form.querySelector('.move-field-down');
+            if (upButton) upButton.disabled = (index === 0);
+            if (downButton) downButton.disabled = (index === campoForms.length - 1);
+        });
+        if (noFieldsMessage) {
+            noFieldsMessage.style.display = campoForms.length === 0 ? 'block' : 'none';
+        }
+    }
+    
+    function updateFormElementPrefixes(formElement, newIndex) {
+        const oldIndexPatternStr = formElement.dataset.formId ? formElement.dataset.formId.split('-').pop() : '__prefix_dynamic__'; // Usar __prefix_dynamic__ como fallback
+
+        formElement.dataset.formId = `${formsetPrefix}-${newIndex}`;
+        
+        formElement.querySelectorAll('[name]').forEach(input => {
+            const oldName = input.getAttribute('name');
+            if (oldName) {
+                 input.setAttribute('name', oldName.replace(new RegExp(`${formsetPrefix}-${oldIndexPatternStr}-`), `${formsetPrefix}-${newIndex}-`));
+            }
+        });
+        formElement.querySelectorAll('[id]').forEach(el => {
+            const oldId = el.getAttribute('id');
+            if (oldId) {
+                 const newId = oldId.replace(new RegExp(`id_${formsetPrefix}-${oldIndexPatternStr}-`), `id_${formsetPrefix}-${newIndex}-`);
+                 el.setAttribute('id', newId);
+                 // Es importante que los 'for' de los labels también se actualicen.
+                 // Buscamos el label que apuntaba al 'oldId' en todo el documento,
+                 // ya que el label podría no ser un hijo directo del mismo contenedor que el input.
+                 const associatedLabel = document.querySelector(`label[for="${oldId}"]`);
+                 if(associatedLabel) associatedLabel.setAttribute('for', newId);
+            }
+        });
+    }
+
+    function reindexAllForms() {
+        const campoForms = formsetContainer.querySelectorAll('.campo-form-item');
+        totalFormsInput.value = campoForms.length; 
+        campoForms.forEach((form, index) => {
+            updateFormElementPrefixes(form, index);
+        });
+        updateFormPresentation();
+    }
+    
+    function toggleOpcionesVisibility(tipoCampoSelect) {
+        const campoFormDiv = tipoCampoSelect.closest('.campo-form-item');
+        const opcionesDiv = campoFormDiv.querySelector('.campo-opciones-container');
+        const tiposConOpciones = ['OPCION_MULTIPLE', 'CASILLAS', 'DESPLEGABLE'];
+        if (opcionesDiv) {
+            opcionesDiv.classList.toggle('hidden', !tiposConOpciones.includes(tipoCampoSelect.value));
+        }
+    }
+
+    function addNewForm(fieldType = '', fieldLabelText = '') {
+        if (!emptyFormHtmlTemplate) {
+            console.error("Plantilla de formulario vacío no encontrada."); return;
+        }
+        let formIdx = parseInt(totalFormsInput.value); 
+        
+        const tempDiv = document.createElement('div');
+        // Reemplaza {{ formset.empty_form.prefix }} que Django TEMPLATE ENGINE usaría por el prefijo correcto con el nuevo índice.
+        // Esta es la parte más delicada para el empty_form.
+        // La idea es que los inputs en empty-form-template tengan names/ids como "campos-__prefix__-etiqueta"
+        // y aquí reemplazamos ese "__prefix__" con el formIdx.
+        let processedHtml = emptyFormHtmlTemplate.replace(/{{ formset.empty_form.prefix }}/g, `${formsetPrefix}-${formIdx}`);
+        processedHtml = processedHtml.replace(/__prefix__/g, formIdx); // Para cualquier otro __prefix__ que haya quedado.
+
+        tempDiv.innerHTML = processedHtml;
+        const newFormElement = tempDiv.firstElementChild;
+        
+        // Asignar el data-form-id para que el reindexado funcione
+        newFormElement.dataset.formId = `${formsetPrefix}-${formIdx}`; 
+        
+        // Pre-seleccionar tipo de campo y actualizar el display
+        const tipoCampoSelect = newFormElement.querySelector(`select[name$="-tipo_campo"]`); // Se busca por el final del name
+        const fieldTypeDisplaySpan = newFormElement.querySelector('.field-type-display');
+        if (tipoCampoSelect && fieldType) {
+            tipoCampoSelect.value = fieldType;
+            if (fieldTypeDisplaySpan && campoTiposText[fieldType]) {
+                fieldTypeDisplaySpan.textContent = campoTiposText[fieldType];
+            } else if (fieldTypeDisplaySpan) {
+                fieldTypeDisplaySpan.textContent = fieldType || "Campo"; // Fallback
+            }
+        } else if (fieldTypeDisplaySpan) {
+             fieldTypeDisplaySpan.textContent = "Nuevo Campo";
+        }
+
+        if(fieldLabelText){
+            const etiquetaInput = newFormElement.querySelector(`input[name$="-etiqueta"]`);
+            if(etiquetaInput) etiquetaInput.value = fieldLabelText;
+        }
+        
+        const orderInput = newFormElement.querySelector(`input[name$="-orden"]`);
+        if (orderInput) orderInput.value = formIdx; // El orden inicial será su índice al añadir
+
+        formsetContainer.appendChild(newFormElement);
+        totalFormsInput.value = formIdx + 1; 
+        
+        initializeEventHandlersForField(newFormElement); // Añadir listeners al nuevo form
+        updateFormPresentation(); // Actualizar botones de mover en todos los forms
+        if(tipoCampoSelect) toggleOpcionesVisibility(tipoCampoSelect); // Asegurar visibilidad correcta
+        
+        if (noFieldsMessage) noFieldsMessage.style.display = 'none';
+        newFormElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        const firstInput = newFormElement.querySelector('input[type="text"], textarea, select');
+        if (firstInput) firstInput.focus();
+    }
+
+    document.querySelectorAll('.add-field-from-palette').forEach(button => {
+        button.addEventListener('click', function() {
+            const fieldType = this.dataset.fieldType;
+            const fieldLabel = campoTiposText[fieldType] || "Nuevo Campo"; // Usa el texto del botón
+            addNewForm(fieldType, `Nueva ${fieldLabel.toLowerCase()}`);
+        });
+    });
+
+    function initializeEventHandlersForField(formElement) {
+        const deleteButton = formElement.querySelector('.delete-new-campo-button');
+        if (deleteButton) { 
+            deleteButton.addEventListener('click', function () {
+                formElement.remove();
+                reindexAllForms(); 
+            });
+        }
+
+        const tipoCampoSelect = formElement.querySelector('select[name$="-tipo_campo"]');
+        if (tipoCampoSelect) {
+            tipoCampoSelect.addEventListener('change', function() {
+                toggleOpcionesVisibility(this);
+                const fieldTypeDisplay = formElement.querySelector('.field-type-display');
+                 if (fieldTypeDisplay && campoTiposText[this.value]) {
+                    fieldTypeDisplay.textContent = campoTiposText[this.value];
+                } else if (fieldTypeDisplay) {
+                    fieldTypeDisplay.textContent = "Personalizado";
+                }
+            });
+             // Ejecutar al inicializar para los campos existentes
+            toggleOpcionesVisibility(tipoCampoSelect);
+            // Actualizar el display del tipo de campo para los campos existentes
+            const fieldTypeDisplay = formElement.querySelector('.field-type-display');
+            if (fieldTypeDisplay && campoTiposText[tipoCampoSelect.value]) {
+                fieldTypeDisplay.textContent = campoTiposText[tipoCampoSelect.value];
+            } else if (fieldTypeDisplay && tipoCampoSelect.value) {
+                fieldTypeDisplay.textContent = tipoCampoSelect.options[tipoCampoSelect.selectedIndex].text;
+            }
+        }
+        
+        formElement.querySelector('.move-field-up')?.addEventListener('click', () => moveField(formElement, 'up'));
+        formElement.querySelector('.move-field-down')?.addEventListener('click', () => moveField(formElement, 'down'));
+    }
+    
+    function moveField(fieldElement, direction) {
+        if (direction === 'up' && fieldElement.previousElementSibling) {
+            formsetContainer.insertBefore(fieldElement, fieldElement.previousElementSibling);
+        } else if (direction === 'down' && fieldElement.nextElementSibling) {
+            formsetContainer.insertBefore(fieldElement.nextElementSibling, fieldElement);
+        }
+        reindexAllForms(); 
+    }
+
+    // Inicializar para campos ya presentes en la página
+    formsetContainer.querySelectorAll('.campo-form-item').forEach(form => {
+        initializeEventHandlersForField(form);
+    });
+    
+    reindexAllForms(); // Llamada inicial para numerar y configurar botones de mover
+
+    // Inicializar SortableJS
+    if (typeof Sortable !== 'undefined' && formsetContainer) {
+        new Sortable(formsetContainer, {
+            animation: 150,
+            handle: '.field-drag-handle',
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            onUpdate: function (evt) { 
+                reindexAllForms(); 
+            }
+        });
+    }
+});
+</script>
+{% endblock %}{% endraw %}

@@ -1,0 +1,97 @@
+/* static/css/intranet_styles.css */
+body {
+    font-family: 'Inter', sans-serif;
+    transition: background-color 0.3s, color 0.3s;
+}
+/* Colores Institucionales (Ejemplo Gobierno de Chile, adaptables) */
+:root {
+    --main-primary-bg: #0033A0; /* Azul principal */
+    --main-primary-text: #0033A0;
+    --main-primary-border: #0033A0;
+    --main-primary-dark-bg: #00227A; /* Azul más oscuro para hover/active */
+
+    --main-secondary-bg: #D90F2C; /* Rojo secundario/acento */
+    --main-secondary-text: #D90F2C;
+    --main-secondary-border: #D90F2C;
+    --main-secondary-dark-bg: #B00C24;
+    
+    --main-white-text: #FFFFFF;
+    --main-white-bg: #FFFFFF;
+
+    --text-color: #1f2937; /* Tailwind gray-800 */
+    --bg-color: #f9fafb; /* Tailwind gray-50 */
+    --card-bg-color: #FFFFFF;
+    --sidebar-bg-color: var(--main-primary-bg);
+    --sidebar-text-color: var(--main-white-text); /* Color de texto por defecto para la sidebar */
+    --sidebar-header-bg-color: #002a80; /* Un azul un poco más oscuro para el header del sidebar */
+    --header-bg-color: var(--main-white-bg);
+    --header-text-color: var(--main-primary-text);
+}
+
+body.dark-mode {
+    --text-color: #d1d5db; /* Tailwind gray-300 */
+    --bg-color: #111827; /* Tailwind gray-900 */
+    --card-bg-color: #1f2937; /* Tailwind gray-800 */
+    --sidebar-bg-color: #1f2937; /* Un gris oscuro para el sidebar en modo oscuro */
+    --sidebar-text-color: #e5e7eb; /* Tailwind gray-200 */
+    --sidebar-header-bg-color: #111827; /* Más oscuro */
+    --header-bg-color: #1f2937;
+    --header-text-color: var(--main-white-text);
+}
+
+/* Aplicación de variables CSS */
+body { background-color: var(--bg-color); color: var(--text-color); }
+.bg-card { background-color: var(--card-bg-color); }
+.text-default { color: var(--text-color); }
+.text-muted { color: var(--text-color); opacity: 0.7; }
+
+.bg-sidebar { background-color: var(--sidebar-bg-color); }
+.text-sidebar { color: var(--sidebar-text-color); }
+.bg-sidebar-header { background-color: var(--sidebar-header-bg-color); }
+
+.bg-header { background-color: var(--header-bg-color); }
+.text-header-title { color: var(--header-text-color); }
+
+
+.bg-main-primary { background-color: var(--main-primary-bg); }
+.text-main-primary { color: var(--main-primary-text); }
+.border-main-primary { border-color: var(--main-primary-border); }
+.hover\:bg-main-primary-dark:hover { background-color: var(--main-primary-dark-bg); }
+.bg-main-primary-dark { background-color: var(--main-primary-dark-bg); } 
+
+.bg-main-secondary { background-color: var(--main-secondary-bg); }
+.text-main-secondary { color: var(--main-secondary-text); }
+.border-main-secondary { border-color: var(--main-secondary-border); }
+.hover\:bg-main-secondary-dark:hover { background-color: var(--main-secondary-dark-bg); }
+
+.text-main-white { color: var(--main-white-text); }
+.bg-main-white { background-color: var(--main-white-bg); }
+
+
+/* Estilo para la barra de scroll */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #f0f4f8; }
+body.dark-mode ::-webkit-scrollbar-track { background: #2d3748; }
+::-webkit-scrollbar-thumb { background: #a0aec0; border-radius: 4px; }
+body.dark-mode ::-webkit-scrollbar-thumb { background: #4b5563; }
+::-webkit-scrollbar-thumb:hover { background: #718096; }
+body.dark-mode ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+
+@media print { .print-hidden { display: none !important; } }
+
+.calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px; background-color: #e2e8f0; border: 1px solid #e2e8f0; }
+body.dark-mode .calendar-grid { background-color: #374151; border-color: #374151; }
+.calendar-day-header, .calendar-day { background-color: var(--card-bg-color); padding: 0.75rem; text-align: center; font-size: 0.875rem; }
+.calendar-day-header { font-weight: 600; color: var(--text-color); opacity: 0.8; }
+.calendar-day { min-height: 6rem; color: var(--text-color); }
+.calendar-day.other-month { color: var(--text-color); opacity: 0.5; background-color: var(--bg-color); }
+.calendar-day .event { display: block; font-size: 0.75rem; padding: 0.25rem; margin-top: 0.25rem; border-radius: 0.25rem; color: white; }
+
+.form-field-palette-item { cursor: grab; }
+.form-canvas { min-height: 200px; border: 2px dashed #cbd5e0; }
+body.dark-mode .form-canvas { border-color: #4b5563; }
+
+#notifications-panel {
+    max-height: 400px;
+    overflow-y: auto;
+}

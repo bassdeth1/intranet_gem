@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title_tag %}Mi Perfil{% endblock %}
+{% block page_title_header %}Mi Perfil{% endblock %}
+
+{% block content %}
+<div class="bg-card p-6 md:p-8 rounded-xl shadow-lg">
+    <h2 class="text-xl font-semibold text-main-primary mb-4">Mi Perfil</h2>
+    <p class="text-default">Aquí irá la información y configuración del perfil del usuario.</p>
+    {% if user.is_authenticated %}
+    <p class="text-default">Nombre: {{ user.get_full_name|default:user.username }}</p>
+    <p class="text-default">Email: {{ user.email }}</p>
+    {% else %}
+    <p class="text-default">Inicia sesión para ver tu perfil.</p>
+    {% endif %}
+</div>
+{% endblock %}

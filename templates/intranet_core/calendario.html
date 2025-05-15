@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title_tag %}Calendario de Actividades{% endblock %}
+{% block page_title_header %}Calendario de Actividades{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl md:text-2xl font-semibold text-main-primary">Calendario de Actividades</h2>
+        <button class="bg-main-secondary hover:bg-main-secondary-dark text-main-white font-medium py-2 px-4 rounded-md flex items-center">
+            <i class="fas fa-plus mr-2"></i> Nueva Actividad
+        </button>
+    </div>
+     <div class="bg-card p-4 md:p-6 rounded-xl shadow-lg">
+        <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md p-8 text-center">
+            <i class="fas fa-calendar-alt fa-3x text-gray-400 mb-4"></i>
+            <p class="text-muted py-8">Un calendario interactivo (como FullCalendar.js o similar) se integraría aquí.</p>
+            <p class="text-sm text-muted mt-2">La implementación de un calendario funcional requiere una librería de JavaScript y lógica de backend para manejar eventos.</p>
+            <div class="mt-6">
+                <div class="flex justify-between items-center mb-4">
+                    <button class="text-main-primary"><i class="fas fa-chevron-left"></i> Mes Anterior</button>
+                    <h3 class="text-lg font-semibold text-default">Mayo 2025</h3>
+                    <button class="text-main-primary">Mes Siguiente <i class="fas fa-chevron-right"></i></button>
+                </div>
+                <div class="calendar-grid">
+                    <div class="calendar-day-header">Lun</div>
+                    <div class="calendar-day-header">Mar</div>
+                    <div class="calendar-day-header">Mié</div>
+                    <div class="calendar-day-header">Jue</div>
+                    <div class="calendar-day-header">Vie</div>
+                    <div class="calendar-day-header">Sáb</div>
+                    <div class="calendar-day-header">Dom</div>
+                    
+                    {% for day in ""|center:35 %} {# Simula celdas de un mes #}
+                    <div class="calendar-day {% if forloop.counter < 5 or forloop.counter > 32 %}other-month{% endif %}">
+                        <span class="text-sm">{{ forloop.counter0|add:28|remainder:31|add:1 }}</span>
+                        {% if forloop.counter == 15 %}
+                        <span class="event bg-blue-500">Reunión Equipo</span>
+                        {% endif %}
+                        {% if forloop.counter == 22 %}
+                        <span class="event bg-red-500">Entrega Informe</span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+     </div>
+</div>
+{% endblock %}

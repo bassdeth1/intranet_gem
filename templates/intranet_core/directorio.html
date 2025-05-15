@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title_tag %}Directorio de Usuarios{% endblock %}
+{% block page_title_header %}Directorio de Usuarios{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <h2 class="text-xl md:text-2xl font-semibold text-main-primary mb-6">Directorio de Usuarios</h2>
+    <div class="bg-card p-6 md:p-8 rounded-xl shadow-lg">
+        <p class="text-muted mb-4">Busque usuarios en la institución o explore el organigrama.</p>
+        <div class="mb-6">
+            <input type="text" placeholder="Buscar por nombre, departamento, cargo..." class="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-main-primary focus:border-transparent">
+        </div>
+        
+        <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md p-8 text-center">
+            <i class="fas fa-address-book fa-3x text-gray-400 mb-4"></i>
+            <p class="text-muted">Visualización del organigrama y listado de usuarios (con filtros y búsqueda avanzada) aparecerá aquí.</p>
+            <p class="text-sm text-muted mt-2">Requeriría modelos de datos para usuarios, departamentos, y posiblemente una librería JS para el organigrama.</p>
+        </div>
+
+        <div class="mt-8">
+            <h3 class="text-lg font-semibold text-default mb-4">Listado de Usuarios (Ejemplo)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow">
+                    <div class="flex items-center space-x-3">
+                        <img src="{% static 'images/default_avatar.png' %}" alt="Avatar" class="w-12 h-12 rounded-full">
+                        <div>
+                            <h4 class="text-md font-semibold text-default">Juan Pérez</h4>
+                            <p class="text-sm text-muted">Desarrollador Senior</p>
+                            <p class="text-xs text-main-primary">juan.perez@example.com</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow">
+                    <div class="flex items-center space-x-3">
+                        <img src="{% static 'images/default_avatar.png' %}" alt="Avatar" class="w-12 h-12 rounded-full"> <div>
+                            <h4 class="text-md font-semibold text-default">Maria González</h4>
+                            <p class="text-sm text-muted">Jefa de Proyecto</p>
+                            <p class="text-xs text-main-primary">maria.gonzalez@example.com</p>
+                        </div>
+                    </div>
+                </div>
+                 <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow">
+                    <div class="flex items-center space-x-3">
+                        <img src="{% static 'images/default_avatar.png' %}" alt="Avatar" class="w-12 h-12 rounded-full"> <div>
+                            <h4 class="text-md font-semibold text-default">Luis Rodriguez</h4>
+                            <p class="text-sm text-muted">Analista de Sistemas</p>
+                            <p class="text-xs text-main-primary">luis.rodriguez@example.com</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

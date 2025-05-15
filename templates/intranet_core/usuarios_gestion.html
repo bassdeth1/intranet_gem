@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title_tag %}Gestión de Usuarios{% endblock %}
+{% block page_title_header %}Gestión de Usuarios{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl md:text-2xl font-semibold text-main-primary">Gestión de Usuarios</h2>
+        <button class="bg-main-secondary hover:bg-main-secondary-dark text-main-white font-medium py-2 px-4 rounded-md flex items-center">
+            <i class="fas fa-user-plus mr-2"></i> Nuevo Usuario
+        </button>
+    </div>
+     <div class="bg-card p-6 md:p-8 rounded-xl shadow-lg">
+        <p class="text-muted mb-6">Panel para administradores: crear, editar, activar/desactivar cuentas de usuarios y asignar roles/permisos.</p>
+        
+        <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md p-8 text-center">
+            <i class="fas fa-users-cog fa-3x text-gray-400 mb-4"></i>
+            <p class="text-muted">Una tabla interactiva con todos los usuarios, filtros, paginación y acciones (editar, desactivar, cambiar rol) aparecerá aquí.</p>
+            <p class="text-sm text-muted mt-2">Esto se conectaría directamente con el modelo de Usuario de Django y posiblemente un modelo de Perfil.</p>
+        </div>
+
+        <div class="mt-8 overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-muted uppercase">Nombre</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-muted uppercase">Email</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-muted uppercase">Rol</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-muted uppercase">Estado</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-muted uppercase">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                    <tr>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-default">Admin Intranet</td>
+                        <td class="px-4 py-2 text-sm text-muted">admin@example.com</td>
+                        <td class="px-4 py-2 text-sm text-muted">Administrador</td>
+                        <td class="px-4 py-2"><span class="px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Activo</span></td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm space-x-2">
+                            <button class="text-main-primary hover:underline" title="Editar"><i class="fas fa-edit"></i></button>
+                            <button class="text-red-500 hover:underline" title="Desactivar"><i class="fas fa-user-slash"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-default">Usuario Ejemplo</td>
+                        <td class="px-4 py-2 text-sm text-muted">usuario@example.com</td>
+                        <td class="px-4 py-2 text-sm text-muted">Empleado</td>
+                        <td class="px-4 py-2"><span class="px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Inactivo</span></td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm space-x-2">
+                            <button class="text-main-primary hover:underline" title="Editar"><i class="fas fa-edit"></i></button>
+                            <button class="text-green-500 hover:underline" title="Activar"><i class="fas fa-user-check"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

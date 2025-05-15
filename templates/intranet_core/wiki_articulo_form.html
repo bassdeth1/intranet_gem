@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title_tag %}{% if edit_mode %}Editar Artículo{% else %}Crear Artículo{% endif %} - Wiki{% endblock %}
+{% block page_title_header %}{% if edit_mode %}Editar Artículo: {{ articulo.titulo }}{% else %}Crear Nuevo Artículo en la Wiki{% endif %}{% endblock %}
+
+{% block content %}
+<div class="bg-card dark:bg-gray-800 p-6 md:p-8 rounded-xl shadow-lg max-w-3xl mx-auto">
+    <form method="POST" class="space-y-6">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 dark:bg-red-800 dark:border-red-600 dark:text-red-200" role="alert">
+                <p class="font-bold">Error general:</p>
+                <ul class="mt-1 list-disc list-inside text-sm">
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        {# Título #}
+        <div>
+            <label for="{{ form.titulo.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ form.titulo.label }}</label>
+            {{ form.titulo }}
+            {% if form.titulo.help_text %}<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">{{ form.titulo.help_text }}</p>{% endif %}
+            {% for error in form.titulo.errors %}<p class="mt-1 text-xs text-red-600 dark:text-red-400"><i class="fas fa-exclamation-triangle mr-1"></i>{{ error }}</p>{% endfor %}
+        </div>
+
+        {# Contenido #}
+        <div>
+            <label for="{{ form.contenido.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ form.contenido.label }}</label>
+            {{ form.contenido }}
+            {% if form.contenido.help_text %}<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">{{ form.contenido.help_text }}</p>{% endif %}
+            {% for error in form.contenido.errors %}<p class="mt-1 text-xs text-red-600 dark:text-red-400"><i class="fas fa-exclamation-triangle mr-1"></i>{{ error }}</p>{% endfor %}
+        </div>
+        
+        {# Slug (generalmente oculto o solo para usuarios avanzados) #}
+        <div>
+            <label for="{{ form.slug.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ form.slug.label }}</label>
+            {{ form.slug }}
+            {% if form.slug.help_text %}<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">{{ form.slug.help_text }}</p>{% endif %}
+            {% for error in form.slug.errors %}<p class="mt-1 text-xs text-red-600 dark:text-red-400"><i class="fas fa-exclamation-triangle mr-1"></i>{{ error }}</p>{% endfor %}
+        </div>
+
+        <div class="pt-4 flex items-center space-x-4">
+            <button type="submit" class="bg-main-primary hover:bg-main-primary-dark text-main-white font-semibold py-2 px-5 rounded-md text-sm">
+                <i class="fas {% if edit_mode %}fa-save{% else %}fa-plus-circle{% endif %} mr-2"></i> 
+                {% if edit_mode %}Guardar Cambios{% else %}Crear Artículo{% endif %}
+            </button>
+            <a href="{% if edit_mode %}{{ articulo.get_absolute_url }}{% else %}{% url 'intranet_core:wiki' %}{% endif %}" class="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 text-sm">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

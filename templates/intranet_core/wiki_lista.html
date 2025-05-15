@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title_tag %}Wiki - Base de Conocimiento{% endblock %}
+{% block page_title_header %}Base de Conocimiento (Wiki){% endblock %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+    <form method="GET" action="{% url 'intranet_core:wiki' %}" class="flex-grow md:mr-4">
+        <div class="relative">
+            <input type="search" name="q" value="{{ search_query|default:'' }}" placeholder="Buscar artículos en la Wiki..." class="w-full p-3 pl-10 text-sm text-gray-700 bg-gray-100 dark:bg-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-main-primary focus:border-main-primary">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fas fa-search text-gray-400"></i>
+            </div>
+        </div>
+    </form>
+    <a href="{% url 'intranet_core:wiki_crear_articulo' %}" class="bg-main-primary hover:bg-main-primary-dark text-main-white font-medium py-2.5 px-5 rounded-md flex items-center text-sm whitespace-nowrap">
+        <i class="fas fa-plus mr-2"></i> Crear Artículo
+    </a>
+</div>
+
+<div class="bg-card dark:bg-gray-800 p-6 md:p-8 rounded-xl shadow-lg">
+    {% if articulos %}
+        <ul class="space-y-4">
+            {% for articulo in articulos %}
+            <li class="border-b border-gray-200 dark:border-gray-700 pb-4 last:border-b-0 last:pb-0">
+                <a href="{{ articulo.get_absolute_url }}" class="text-lg font-semibold text-main-primary hover:underline dark:text-blue-400 dark:hover:text-blue-300">
+                    {{ articulo.titulo }}
+                </a>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Autor: {{ articulo.autor.get_full_name|default:articulo.autor.username|default:"Desconocido" }} | Actualizado: {{ articulo.actualizado_el|date:"d M Y, H:i" }}
+                </p>
+                <p class="text-sm text-gray-700 dark:text-gray-300 mt-2 line-clamp-2">
+                    {{ articulo.contenido|striptags|truncatewords:30 }}
+                </p>
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        {% if search_query %}
+        <p class="text-center text-gray-600 dark:text-gray-400 py-8">No se encontraron artículos que coincidan con tu búsqueda.</p>
+        {% else %}
+        <p class="text-center text-gray-600 dark:text-gray-400 py-8">Aún no hay artículos en la wiki. ¡Sé el primero en <a href="{% url 'intranet_core:wiki_crear_articulo' %}" class="text-main-primary hover:underline">crear uno</a>!</p>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

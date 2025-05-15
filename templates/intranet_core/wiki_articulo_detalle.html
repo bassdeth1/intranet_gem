@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title_tag %}{{ articulo.titulo }} - Wiki{% endblock %}
+{% block page_title_header %}{{ articulo.titulo }}{% endblock %}
+
+{% block content %}
+<div class="bg-card dark:bg-gray-800 p-6 md:p-8 rounded-xl shadow-lg">
+    <div class="prose dark:prose-invert max-w-none">
+        {# El contenido se renderiza como HTML si usaste la librería markdown en la vista #}
+        {# Si no, ajusta para mostrar articulo.contenido directamente o como <pre> #}
+        {{ html_content|safe }}
+    </div>
+
+    <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-400">
+        <p>Autor: {{ articulo.autor.get_full_name|default:articulo.autor.username|default:"Desconocido" }}</p>
+        <p>Última actualización: {{ articulo.actualizado_el|date:"d M Y, H:i" }} (Creado: {{ articulo.creado_el|date:"d M Y, H:i" }})</p>
+    </div>
+
+    {# Solo mostrar botones de editar/eliminar al autor o staff #}
+    {% if user == articulo.autor or user.is_staff %}
+    <div class="mt-8 flex space-x-4">
+        <a href="{% url 'intranet_core:wiki_editar_articulo' slug=articulo.slug %}" class="bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-md text-sm flex items-center">
+            <i class="fas fa-edit mr-2"></i> Editar Artículo
+        </a>
+        <a href="{% url 'intranet_core:wiki_eliminar_articulo' slug=articulo.slug %}" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md text-sm flex items-center">
+            <i class="fas fa-trash-alt mr-2"></i> Eliminar Artículo
+        </a>
+    </div>
+    {% endif %}
+    
+    <div class="mt-8">
+        <a href="{% url 'intranet_core:wiki' %}" class="text-main-primary hover:underline dark:text-blue-400">&larr; Volver a la lista de la Wiki</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{# Si usas codehilite de Markdown para sintaxis de código #}
+<link rel="stylesheet" href="{% static 'css/code_highlight_styles.css' %}"> {# Necesitarás crear este CSS si quieres estilos personalizados #}
+<style>
+/* Estilos básicos para prose si no usas el plugin de Tailwind Typography */
+.prose h1 { font-size: 2em; margin-bottom: 0.5em; margin-top: 1em; font-weight: 600; }
+.prose h2 { font-size: 1.5em; margin-bottom: 0.4em; margin-top: 1em; font-weight: 600; }
+.prose h3 { font-size: 1.25em; margin-bottom: 0.3em; margin-top: 1em; font-weight: 600; }
+.prose p { margin-bottom: 1em; line-height: 1.6; }
+.prose ul, .prose ol { margin-bottom: 1em; margin-left: 1.5em; }
+.prose li { margin-bottom: 0.5em; }
+.prose pre { background-color: #f5f5f5; padding: 1em; border-radius: 0.375rem; overflow-x: auto; margin-bottom: 1em;}
+.prose code { font-family: monospace; }
+.prose a { color: var(--main-primary-text, #0033A0); text-decoration: underline; }
+.prose img { max-width: 100%; height: auto; border-radius: 0.375rem; margin-bottom: 1em;}
+.prose table { width: 100%; border-collapse: collapse; margin-bottom: 1em; }
+.prose th, .prose td { border: 1px solid #ddd; padding: 0.5em; text-align: left; }
+.prose th { background-color: #f9f9f9; }
+
+.dark .prose-invert h1, .dark .prose-invert h2, .dark .prose-invert h3 { color: #e5e7eb; }
+.dark .prose-invert p, .dark .prose-invert li { color: #d1d5db; }
+.dark .prose-invert pre { background-color: #374151; color: #e5e7eb;}
+.dark .prose-invert a { color: var(--main-primary-text-dark, #7dd3fc); } /* Ajustar color para modo oscuro */
+.dark .prose-invert th, .dark .prose-invert td { border-color: #4b5563; }
+.dark .prose-invert th { background-color: #374151; }
+
+/* Para la extensión codehilite de Markdown (si la usas) */
+.codehilite pre { padding: 1em; border-radius: 4px; overflow: auto; }
+/* Más estilos para codehilite se pueden añadir o referenciar de un archivo CSS de Pygments */
+</style>
+{% endblock %}

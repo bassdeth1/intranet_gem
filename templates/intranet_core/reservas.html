@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title_tag %}Reserva de Recursos{% endblock %}
+{% block page_title_header %}Reserva de Recursos{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <h2 class="text-xl md:text-2xl font-semibold text-main-primary mb-6">Reserva de Recursos</h2>
+    <div class="bg-card p-6 md:p-8 rounded-xl shadow-lg">
+        <p class="text-muted mb-4">Consulte la disponibilidad y reserve salas de reuniones, equipos y otros recursos compartidos.</p>
+        
+        <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md p-8 text-center">
+            <i class="fas fa-calendar-check fa-3x text-gray-400 mb-4"></i>
+            <p class="text-muted">Interfaz de calendario de reservas (similar a la de actividades, pero para recursos) y listado de recursos disponibles aparecerá aquí.</p>
+            <p class="text-sm text-muted mt-2">Necesitará modelos para recursos, tipos de recursos, y reservas, además de una librería JS para el calendario.</p>
+        </div>
+
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+                <h3 class="text-lg font-semibold text-default mb-4">Recursos Disponibles</h3>
+                <ul class="space-y-2">
+                    <li class="p-3 bg-gray-50 dark:bg-gray-700 rounded-md shadow-sm">
+                        <span class="font-medium text-default">Sala de Reuniones A</span> - Capacidad: 10
+                    </li>
+                    <li class="p-3 bg-gray-50 dark:bg-gray-700 rounded-md shadow-sm">
+                        <span class="font-medium text-default">Proyector Multimedia P-100</span> - Disponible
+                    </li>
+                    <li class="p-3 bg-gray-50 dark:bg-gray-700 rounded-md shadow-sm">
+                        <span class="font-medium text-default">Vehículo Institucional V-01</span> - En uso hasta 16/05
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-default mb-4">Realizar una Reserva</h3>
+                <form class="space-y-4">
+                    <div>
+                        <label for="recurso" class="block text-sm font-medium text-muted">Recurso</label>
+                        <select id="recurso" name="recurso" class="mt-1 block w-full p-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-main-primary focus:border-main-primary">
+                            <option>Seleccione un recurso...</option>
+                            <option>Sala de Reuniones A</option>
+                            <option>Proyector Multimedia P-100</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="fecha_reserva" class="block text-sm font-medium text-muted">Fecha</label>
+                        <input type="date" id="fecha_reserva" name="fecha_reserva" class="mt-1 block w-full p-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-main-primary focus:border-main-primary">
+                    </div>
+                    <div>
+                        <label for="hora_inicio" class="block text-sm font-medium text-muted">Hora Inicio</label>
+                        <input type="time" id="hora_inicio" name="hora_inicio" class="mt-1 block w-full p-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-main-primary focus:border-main-primary">
+                    </div>
+                    <div>
+                        <label for="hora_fin" class="block text-sm font-medium text-muted">Hora Fin</label>
+                        <input type="time" id="hora_fin" name="hora_fin" class="mt-1 block w-full p-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-main-primary focus:border-main-primary">
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-main-primary hover:bg-main-primary-dark text-main-white font-medium py-2 px-4 rounded-md">
+                            Solicitar Reserva
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

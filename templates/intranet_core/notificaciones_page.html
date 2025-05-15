@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title_tag %}Notificaciones{% endblock %}
+{% block page_title_header %}Notificaciones y Anuncios{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-xl md:text-2xl font-semibold text-main-primary dark:text-blue-400">Tus Notificaciones</h2>
+    {% if notificaciones_no_leidas %}
+    <form method="POST" action="{% url 'intranet_core:marcar_todas_notificaciones_leidas' %}">
+        {% csrf_token %}
+        <button type="submit" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-default font-medium py-2 px-4 rounded-md text-sm">
+            Marcar todas como leídas
+        </button>
+    </form>
+    {% endif %}
+</div>
+
+{% if messages %}
+    <div class="mb-6 space-y-3">
+    {% for message in messages %}
+        <div class="p-4 rounded-md text-sm {% if message.tags == 'success' %}bg-green-100 border border-green-300 text-green-700 dark:bg-green-800 dark:border-green-600 dark:text-green-200{% elif message.tags == 'error' %}bg-red-100 border border-red-300 text-red-700 dark:bg-red-800 dark:border-red-600 dark:text-red-200{% else %}bg-blue-100 border border-blue-300 text-blue-700 dark:bg-blue-800 dark:border-blue-600 dark:text-blue-200{% endif %}" role="alert">
+            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %} mr-2"></i>
+            {{ message }}
+        </div>
+    {% endfor %}
+    </div>
+{% endif %}
+
+<div class="space-y-6">
+    {# Notificaciones No Leídas #}
+    {% if notificaciones_no_leidas %}
+    <section>
+        <h3 class="text-lg font-semibold text-default dark:text-gray-100 mb-3">Nuevas</h3>
+        <div class="bg-card dark:bg-gray-800 p-4 md:p-6 rounded-xl shadow-lg space-y-3">
+            {% for notificacion in notificaciones_no_leidas %}
+            <div class="p-4 rounded-md bg-blue-50 dark:bg-blue-900/50 border-l-4 border-main-primary dark:border-blue-500 flex justify-between items-center">
+                <div>
+                    <p class="text-sm text-gray-800 dark:text-gray-200">{{ notificacion.mensaje }}</p>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">{{ notificacion.fecha_creacion|date:"d M Y, H:i" }}</span>
+                </div>
+                <a href="{% url 'intranet_core:marcar_notificacion_leida' notificacion.id %}" class="text-xs bg-main-primary text-white hover:bg-main-primary-dark py-1 px-2 rounded-full whitespace-nowrap">
+                    {% if notificacion.url_destino %}Ver y Marcar Leída{% else %}Marcar Leída{% endif %}
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    {# Notificaciones Leídas (Historial) #}
+    <section>
+        <h3 class="text-lg font-semibold text-default dark:text-gray-100 mb-3">Historial (Leídas)</h3>
+        {% if notificaciones_leidas %}
+        <div class="bg-card dark:bg-gray-800 p-4 md:p-6 rounded-xl shadow-lg space-y-3">
+            {% for notificacion in notificaciones_leidas %}
+            <div class="p-4 rounded-md bg-gray-100 dark:bg-gray-700/50 opacity-75">
+                <p class="text-sm text-gray-700 dark:text-gray-300">{{ notificacion.mensaje }}</p>
+                <span class="text-xs text-gray-500 dark:text-gray-400">{{ notificacion.fecha_creacion|date:"d M Y, H:i" }} - Leída</span>
+                 {% if notificacion.url_destino %}
+                    <a href="{{ notificacion.url_destino }}" class="text-xs text-main-primary hover:underline ml-2">Ir al enlace</a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+             <div class="bg-card dark:bg-gray-800 p-6 md:p-8 rounded-xl shadow-lg text-center">
+                <p class="text-gray-500 dark:text-gray-400">No hay notificaciones leídas en tu historial reciente.</p>
+            </div>
+        {% endif %}
+    </section>
+
+    {% if not notificaciones_no_leidas and not notificaciones_leidas %}
+    <div class="bg-card dark:bg-gray-800 p-6 md:p-8 rounded-xl shadow-lg text-center">
+        <i class="fas fa-bell-slash fa-3x text-gray-400 dark:text-gray-500 mb-4"></i>
+        <p class="text-gray-600 dark:text-gray-400">No tienes notificaciones en este momento.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

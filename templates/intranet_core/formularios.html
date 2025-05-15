@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title_tag %}Creador de Formularios{% endblock %}
+{% block page_title_header %}Creador de Formularios{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl md:text-2xl font-semibold text-main-primary">Creador de Formularios Dinámicos</h2>
+        <button class="bg-main-secondary hover:bg-main-secondary-dark text-main-white font-medium py-2 px-4 rounded-md flex items-center">
+            <i class="fas fa-plus mr-2"></i> Crear Nuevo Formulario
+        </button>
+    </div>
+    <div class="bg-card p-6 md:p-8 rounded-xl shadow-lg mb-8">
+        <h3 class="text-lg font-semibold text-default mb-4">Mis Formularios</h3>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-muted uppercase">Título</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-muted uppercase">Fecha Creación</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-muted uppercase">Estado</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-muted uppercase">Respuestas</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-muted uppercase">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                    <tr>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-default">Encuesta de Clima Laboral</td>
+                        <td class="px-4 py-2 text-sm text-muted">10/05/2025</td>
+                        <td class="px-4 py-2"><span class="px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Activo</span></td>
+                        <td class="px-4 py-2 text-sm text-muted">152</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm space-x-2">
+                            <button class="text-main-primary hover:underline" title="Editar"><i class="fas fa-edit"></i></button>
+                            <button class="text-green-600 hover:underline" title="Ver Respuestas"><i class="fas fa-poll"></i></button>
+                            <button class="text-blue-600 hover:underline" title="Obtener Enlace"><i class="fas fa-link"></i></button>
+                            <button class="text-gray-500 hover:underline" title="Desactivar"><i class="fas fa-toggle-off"></i></button>
+                        </td>
+                    </tr>
+                    </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="bg-card p-6 md:p-8 rounded-xl shadow-lg">
+        <h3 class="text-lg font-semibold text-default mb-4" id="form-builder-title">Crear Nuevo Formulario</h3>
+        <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md p-8 text-center">
+            <i class="fas fa-tools fa-3x text-gray-400 mb-4"></i>
+            <p class="text-muted">Interfaz de creación de formularios (arrastrar y soltar campos, configuración, etc.) aparecerá aquí.</p>
+            <p class="text-sm text-muted mt-2">Esta sección requerirá una implementación de JavaScript más avanzada (ej. con librerías como FormBuilder.js o similar) para la funcionalidad de "arrastrar y soltar".</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

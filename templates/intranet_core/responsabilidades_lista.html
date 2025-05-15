@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title_tag %}Gestión de Responsabilidades{% endblock %}
+{% block page_title_header %}{{ page_title_for_header|default:"Gestión de Responsabilidades" }}{% endblock %}
+
+{% block content %}
+<div class="bg-card dark:bg-gray-800 p-6 md:p-8 rounded-xl shadow-lg">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <h2 class="text-2xl font-semibold text-main-primary dark:text-blue-400">{{ page_title_for_header|default:"Gestión de Responsabilidades" }}</h2>
+        <a href="{% url 'intranet_core:tarea_crear' %}" class="btn-primary text-sm">
+            <i class="fas fa-plus mr-2"></i> Nueva Tarea
+        </a>
+    </div>
+
+    {% if messages %}
+        <div class="mb-6 space-y-3">
+        {% for message in messages %}
+            <div class="p-4 rounded-md text-sm {% if message.tags == 'success' %}bg-green-100 border border-green-300 text-green-700 dark:bg-green-800 dark:border-green-600 dark:text-green-200{% elif message.tags == 'error' %}bg-red-100 border border-red-300 text-red-700 dark:bg-red-800 dark:border-red-600 dark:text-red-200{% else %}bg-blue-100 border border-blue-300 text-blue-700 dark:bg-blue-800 dark:border-blue-600 dark:text-blue-200{% endif %}" role="alert">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %} mr-2"></i>
+                {{ message }}
+            </div>
+        {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="mb-6">
+        <div class="flex space-x-2 border-b border-gray-200 dark:border-gray-700 pb-3 mb-3">
+            <a href="?filter=mis_tareas" class="px-3 py-2 rounded-md text-sm font-medium {% if current_filter == 'mis_tareas' %}bg-main-primary text-white{% else %}text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700{% endif %}">Mis Tareas</a>
+            <a href="?filter=creadas_por_mi" class="px-3 py-2 rounded-md text-sm font-medium {% if current_filter == 'creadas_por_mi' %}bg-main-primary text-white{% else %}text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700{% endif %}">Creadas por Mí</a>
+            {% if user.is_staff %}
+            <a href="?filter=todas" class="px-3 py-2 rounded-md text-sm font-medium {% if current_filter == 'todas' %}bg-main-primary text-white{% else %}text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700{% endif %}">Todas</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="mb-8">
+        <h3 class="text-lg font-semibold text-default dark:text-gray-100 mb-4">Tareas Pendientes/En Progreso</h3>
+        {% if tareas_pendientes %}
+        <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-750">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Título</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Asignado a</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Fecha Límite</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Prioridad</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Estado</th>
+                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {% for tarea in tareas_pendientes %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-100">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                            <a href="{% url 'intranet_core:tarea_detalle' tarea.id %}" class="text-main-primary hover:underline">{{ tarea.titulo|truncatechars:50 }}</a>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">{{ tarea.asignado_a.get_full_name|default:tarea.asignado_a.username|default:"Sin asignar" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">{{ tarea.fecha_limite|date:"d/m/Y"|default:"N/A" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if tarea.prioridad == tarea.PrioridadTarea.ALTA or tarea.prioridad == tarea.PrioridadTarea.URGENTE %} bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 
+                                {% elif tarea.prioridad == tarea.PrioridadTarea.MEDIA %} bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                                {% else %} bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 {% endif %}">
+                                {{ tarea.get_prioridad_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if tarea.estado == tarea.EstadoTarea.EN_PROGRESO %} bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200
+                                {% else %} bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 {% endif %}">
+                                {{ tarea.get_estado_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                            <div class="flex justify-center items-center space-x-3">
+                                <a href="{% url 'intranet_core:tarea_detalle' tarea.id %}" class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300" title="Ver Detalles"><i class="fas fa-eye fa-fw"></i></a>
+                                {% if user == tarea.creado_por or user.is_staff or user == tarea.asignado_a %}
+                                <a href="{% url 'intranet_core:tarea_editar' tarea.id %}" class="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300" title="Editar"><i class="fas fa-edit fa-fw"></i></a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-6">
+            <i class="fas fa-check-circle fa-3x text-green-500 mb-3"></i>
+            <p class="text-muted">No tienes tareas pendientes o en progreso.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="mt-8">
+        <h3 class="text-lg font-semibold text-default dark:text-gray-100 mb-4">Tareas Completadas (Últimas 20)</h3>
+        {% if tareas_completadas %}
+        <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                 <thead class="bg-gray-50 dark:bg-gray-750">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Título</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Asignado a</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Fecha Límite</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Prioridad</th>
+                         <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {% for tarea in tareas_completadas %}
+                     <tr class="opacity-70 hover:opacity-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-100">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <a href="{% url 'intranet_core:tarea_detalle' tarea.id %}" class="hover:underline">{{ tarea.titulo|truncatechars:50 }}</a>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ tarea.asignado_a.get_full_name|default:tarea.asignado_a.username|default:"Sin asignar" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ tarea.fecha_limite|date:"d/m/Y"|default:"N/A" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"> {{ tarea.get_prioridad_display }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                            <a href="{% url 'intranet_core:tarea_detalle' tarea.id %}" class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300" title="Ver Detalles"><i class="fas fa-eye fa-fw"></i></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted text-center py-6">No hay tareas completadas recientemente.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title_tag %}Editar Archivo - {{ archivo.nombre_descriptivo|default:archivo.nombre_original_archivo }}{% endblock %}
+{% block page_title_header %}Editar Archivo{% endblock %}
+
+{% block content %}
+<div class="bg-card dark:bg-gray-800 p-6 md:p-8 rounded-xl shadow-lg max-w-2xl mx-auto">
+    <h2 class="text-xl md:text-2xl font-semibold text-main-primary dark:text-blue-400 mb-3">
+        Editando: <span class="font-normal">{{ archivo.nombre_descriptivo|default:archivo.nombre_original_archivo }}</span>
+    </h2>
+    {% if archivo.archivo_subido %}
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Archivo actual:
+            <a href="{{ archivo.archivo_subido.url }}" target="_blank" class="text-main-primary hover:underline">
+                {{ archivo.nombre_original_archivo }}
+            </a> ({{ archivo.archivo_subido.size|filesizeformat }})
+        </p>
+    {% endif %}
+    <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">Subido el: {{ archivo.fecha_subida|date:"d M Y, H:i" }}</p>
+    
+
+    <form method="POST" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 dark:bg-red-800 dark:border-red-600 dark:text-red-200" role="alert">
+                <p class="font-bold">Error general:</p>
+                <ul class="mt-1 list-disc list-inside text-sm">
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        {# Nombre Descriptivo #}
+        <div>
+            <label for="{{ form.nombre_descriptivo.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ form.nombre_descriptivo.label }}</label>
+            {{ form.nombre_descriptivo }}
+            {% if form.nombre_descriptivo.help_text %}<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">{{ form.nombre_descriptivo.help_text }}</p>{% endif %}
+            {% for error in form.nombre_descriptivo.errors %}<p class="mt-1 text-xs text-red-600 dark:text-red-400"><i class="fas fa-exclamation-triangle mr-1"></i>{{ error }}</p>{% endfor %}
+        </div>
+
+        {# Carpeta #}
+        {% if form.fields.carpeta %}
+        <div>
+            <label for="{{ form.carpeta.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ form.carpeta.label }}</label>
+            {{ form.carpeta }}
+            {% if form.carpeta.help_text %}<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">{{ form.carpeta.help_text }}</p>{% endif %}
+            {% for error in form.carpeta.errors %}<p class="mt-1 text-xs text-red-600 dark:text-red-400"><i class="fas fa-exclamation-triangle mr-1"></i>{{ error }}</p>{% endfor %}
+        </div>
+        {% endif %}
+
+        {# Reemplazar Archivo #}
+        <div>
+            <label for="{{ form.archivo_subido.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ form.archivo_subido.label }}</label>
+            {{ form.archivo_subido }}
+            <p id="file-edit-filename" class="mt-2 text-xs text-gray-500 dark:text-gray-400"></p>
+            {% if form.archivo_subido.help_text %}<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">{{ form.archivo_subido.help_text }}</p>{% endif %}
+            {% for error in form.archivo_subido.errors %}<p class="mt-1 text-xs text-red-600 dark:text-red-400"><i class="fas fa-exclamation-triangle mr-1"></i>{{ error }}</p>{% endfor %}
+        </div>
+
+        <div class="pt-4 flex items-center space-x-4">
+            <button type="submit" class="bg-main-primary hover:bg-main-primary-dark text-main-white font-semibold py-2 px-5 rounded-md text-sm transition-colors duration-150">
+                <i class="fas fa-save mr-2"></i> Guardar Cambios
+            </button>
+            <a href="{% url 'intranet_core:carga_archivos' %}" class="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 text-sm">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const fileInput = document.querySelector('input[type="file"][name="archivo_subido"]'); // Puede haber otro en la misma página base
+    const fileEditFilenameDisplay = document.getElementById('file-edit-filename');
+
+    if (fileInput && fileEditFilenameDisplay) {
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files.length > 0) {
+                fileEditFilenameDisplay.textContent = 'Nuevo archivo seleccionado: ' + e.target.files[0].name;
+            } else {
+                // Si el usuario limpia la selección (ej. con ClearableFileInput), el texto podría borrarse
+                // o indicar "No se reemplazará el archivo"
+                fileEditFilenameDisplay.textContent = 'No se ha seleccionado un nuevo archivo para reemplazar.';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

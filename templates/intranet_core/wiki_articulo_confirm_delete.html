@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title_tag %}Confirmar Eliminación - {{ articulo.titulo }}{% endblock %}
+{% block page_title_header %}Confirmar Eliminación de Artículo{% endblock %}
+
+{% block content %}
+<div class="bg-card dark:bg-gray-800 p-6 md:p-8 rounded-xl shadow-lg max-w-lg mx-auto text-center">
+    <i class="fas fa-exclamation-triangle fa-3x text-red-500 mb-4"></i>
+    <h2 class="text-xl font-semibold text-default dark:text-gray-100 mb-2">
+        ¿Estás seguro de que quieres eliminar el artículo?
+    </h2>
+    <p class="text-lg text-main-primary dark:text-blue-400 mb-6">"{{ articulo.titulo }}"</p>
+    
+    <p class="text-gray-600 dark:text-gray-400 mb-6">Esta acción no se puede deshacer.</p>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="flex justify-center space-x-4">
+            <a href="{{ articulo.get_absolute_url }}" class="px-6 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500">
+                Cancelar
+            </a>
+            <button type="submit" class="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+                Sí, Eliminar
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

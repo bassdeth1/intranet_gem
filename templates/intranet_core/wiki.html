@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title_tag %}Base de Conocimiento{% endblock %}
+{% block page_title_header %}Base de Conocimiento (Wiki){% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <h2 class="text-xl md:text-2xl font-semibold text-main-primary mb-6">Base de Conocimiento (Wiki)</h2>
+    <div class="bg-card p-6 md:p-8 rounded-xl shadow-lg">
+        <p class="text-muted mb-4">Encuentre manuales, guías, procedimientos y preguntas frecuentes de la institución.</p>
+        <div class="mb-6">
+            <input type="text" placeholder="Buscar en la base de conocimiento..." class="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-main-primary focus:border-transparent">
+        </div>
+        
+        <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md p-8 text-center">
+            <i class="fas fa-book-open fa-3x text-gray-400 mb-4"></i>
+            <p class="text-muted">Artículos y categorías de la wiki (con editor de texto enriquecido para crear/editar artículos) aparecerán aquí.</p>
+            <p class="text-sm text-muted mt-2">Una wiki funcional requiere modelos para artículos, categorías, versiones, y un buen editor WYSIWYG.</p>
+        </div>
+
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <h3 class="text-lg font-semibold text-default mb-3">Categorías Populares</h3>
+                <ul class="space-y-2">
+                    <li><a href="#" class="text-main-primary hover:underline">Procedimientos Internos</a></li>
+                    <li><a href="#" class="text-main-primary hover:underline">Guías de Software</a></li>
+                    <li><a href="#" class="text-main-primary hover:underline">Recursos Humanos</a></li>
+                    <li><a href="#" class="text-main-primary hover:underline">Preguntas Frecuentes TI</a></li>
+                </ul>
+            </div>
+            <div class="md:col-span-2">
+                <h3 class="text-lg font-semibold text-default mb-3">Artículos Recientes</h3>
+                <div class="space-y-4">
+                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-md shadow-sm">
+                        <a href="#" class="font-medium text-default hover:text-main-primary block">Cómo solicitar vacaciones</a>
+                        <p class="text-xs text-muted mt-1">Actualizado el 10/05/2025 por Admin</p>
+                    </div>
+                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-md shadow-sm">
+                        <a href="#" class="font-medium text-default hover:text-main-primary block">Guía de uso del nuevo CRM</a>
+                        <p class="text-xs text-muted mt-1">Actualizado el 05/05/2025 por Soporte TI</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

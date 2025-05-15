@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title_tag %}Intranet Profesional{% endblock %} - Institución Mejorada</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/intranet_styles.css' %}">
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <aside id="sidebar" class="w-64 bg-sidebar text-sidebar flex-col print-hidden transition-transform duration-300 ease-in-out transform -translate-x-full md:translate-x-0 md:flex">
+            <div class="h-20 flex items-center justify-center bg-sidebar-header">
+                <svg class="h-10 w-10 text-main-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6.75M9 12.75h6.75M9 18h6.75M5.25 6h.008v.008H5.25V6zm0 6h.008v.008H5.25v-6zm0 6h.008v.008H5.25v-6z"/>
+                </svg>
+                <span class="ml-2 text-xl font-semibold text-main-white">Intranet</span>
+            </div>
+            <nav class="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
+                <a href="{% url 'intranet_core:dashboard' %}" class="nav-link flex items-center px-3 py-3 text-sm font-medium rounded-md transition-colors duration-150 {% if active_nav == 'dashboard' %}bg-main-primary-dark text-white{% else %}text-gray-200 hover:bg-main-primary-dark hover:text-white{% endif %}"><i class="fas fa-tachometer-alt w-5 h-5 mr-3"></i> Panel Principal</a>
+                <a href="{% url 'intranet_core:carga_archivos' %}" class="nav-link flex items-center px-3 py-3 text-sm font-medium rounded-md transition-colors duration-150 {% if active_nav == 'carga_archivos' %}bg-main-primary-dark text-white{% else %}text-gray-200 hover:bg-main-primary-dark hover:text-white{% endif %}"><i class="fas fa-folder-open w-5 h-5 mr-3"></i> Gestor de Archivos</a>
+                <a href="{% url 'intranet_core:formularios' %}" class="nav-link flex items-center px-3 py-3 text-sm font-medium rounded-md transition-colors duration-150 {% if active_nav == 'formularios' %}bg-main-primary-dark text-white{% else %}text-gray-200 hover:bg-main-primary-dark hover:text-white{% endif %}"><i class="fas fa-edit w-5 h-5 mr-3"></i> Creador Formularios</a>
+                <a href="{% url 'intranet_core:calendario' %}" class="nav-link flex items-center px-3 py-3 text-sm font-medium rounded-md transition-colors duration-150 {% if active_nav == 'calendario' %}bg-main-primary-dark text-white{% else %}text-gray-200 hover:bg-main-primary-dark hover:text-white{% endif %}"><i class="fas fa-calendar-alt w-5 h-5 mr-3"></i> Calendario Actividades</a>
+                <a href="{% url 'intranet_core:responsabilidades' %}" class="nav-link flex items-center px-3 py-3 text-sm font-medium rounded-md transition-colors duration-150 {% if active_nav == 'responsabilidades' %}bg-main-primary-dark text-white{% else %}text-gray-200 hover:bg-main-primary-dark hover:text-white{% endif %}"><i class="fas fa-sitemap w-5 h-5 mr-3"></i> Gestión Responsabilidades</a>
+                <a href="{% url 'intranet_core:directorio' %}" class="nav-link flex items-center px-3 py-3 text-sm font-medium rounded-md transition-colors duration-150 {% if active_nav == 'directorio' %}bg-main-primary-dark text-white{% else %}text-gray-200 hover:bg-main-primary-dark hover:text-white{% endif %}"><i class="fas fa-address-book w-5 h-5 mr-3"></i> Directorio Usuarios</a>
+                <a href="{% url 'intranet_core:reservas' %}" class="nav-link flex items-center px-3 py-3 text-sm font-medium rounded-md transition-colors duration-150 {% if active_nav == 'reservas' %}bg-main-primary-dark text-white{% else %}text-gray-200 hover:bg-main-primary-dark hover:text-white{% endif %}"><i class="fas fa-calendar-check w-5 h-5 mr-3"></i> Reserva de Recursos</a>
+                <a href="{% url 'intranet_core:wiki' %}" class="nav-link flex items-center px-3 py-3 text-sm font-medium rounded-md transition-colors duration-150 {% if active_nav == 'wiki' %}bg-main-primary-dark text-white{% else %}text-gray-200 hover:bg-main-primary-dark hover:text-white{% endif %}"><i class="fas fa-book-open w-5 h-5 mr-3"></i> Base de Conocimiento</a>
+                <a href="{% url 'intranet_core:notificaciones_page' %}" class="nav-link flex items-center px-3 py-3 text-sm font-medium rounded-md transition-colors duration-150 {% if active_nav == 'notificaciones_page' %}bg-main-primary-dark text-white{% else %}text-gray-200 hover:bg-main-primary-dark hover:text-white{% endif %}">
+                    <i class="fas fa-bell w-5 h-5 mr-3"></i> Notificaciones
+                    <span class="ml-auto inline-block py-0.5 px-2 text-xs font-semibold text-main-secondary bg-main-white rounded-full">{{ notification_count|default:0 }}</span>
+                </a>
+                <div class="pt-4 mt-4 border-t" style="border-color: var(--main-primary-dark-bg);">
+                    <h6 class="px-3 mb-2 text-xs font-semibold uppercase tracking-wider" style="color: var(--main-white-text); opacity:0.7;">Administración</h6>
+                    <a href="{% url 'intranet_core:usuarios_gestion' %}" class="nav-link flex items-center px-3 py-3 text-sm font-medium rounded-md transition-colors duration-150 {% if active_nav == 'usuarios_gestion' %}bg-main-primary-dark text-white{% else %}text-gray-200 hover:bg-main-primary-dark hover:text-white{% endif %}"><i class="fas fa-users-cog w-5 h-5 mr-3"></i> Gestión Usuarios</a>
+                </div>
+            </nav>
+            <div class="p-4 border-t mt-auto" style="border-color: var(--main-primary-dark-bg);"><p class="text-xs" style="color: var(--main-white-text); opacity:0.7;">&copy; <span id="currentYear"></span> Nuestra Institución</p></div>
+        </aside>
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <header class="bg-header shadow-md p-4 flex justify-between items-center print-hidden">
+                <div class="flex items-center">
+                    <button id="sidebar-toggle" class="text-default hover:text-main-primary focus:outline-none md:hidden"><i class="fas fa-bars fa-lg"></i></button>
+                    <h1 id="main-title" class="text-2xl font-semibold text-header-title ml-2 md:ml-0">{% block page_title_header %}{{ page_title_for_header|default:"Panel Principal" }}{% endblock %}</h1>
+                </div>
+                <div class="flex items-center space-x-3 md:space-x-4">
+                    <button id="search-button" class="text-default hover:text-main-primary focus:outline-none"> <i class="fas fa-search fa-lg"></i> </button>
+                    <button id="theme-toggle" class="text-default hover:text-main-primary focus:outline-none"><i class="fas fa-moon fa-lg"></i></button>
+                    <div class="relative">
+                        <button id="notifications-button" class="text-default hover:text-main-primary focus:outline-none">
+                            <i class="fas fa-bell fa-lg"></i>
+                            <span class="absolute -top-1 -right-1 flex h-3 w-3">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-main-secondary opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-3 w-3 bg-main-secondary"></span>
+                            </span>
+                        </button>
+                        <div id="notifications-panel" class="hidden absolute right-0 mt-2 w-80 md:w-96 bg-card rounded-md shadow-xl z-50 border border-gray-200 dark:border-gray-700">
+                            <div class="p-3 border-b border-gray-200 dark:border-gray-700"><h6 class="font-semibold text-default">Notificaciones</h6></div>
+                            <div class="divide-y divide-gray-100 dark:divide-gray-700 max-h-80 overflow-y-auto">
+                                <a href="#" class="block p-3 hover:bg-gray-50 dark:hover:bg-gray-700"><p class="text-sm font-medium text-default">Nueva tarea asignada: <span class="font-bold">Revisar informe</span></p><p class="text-xs text-muted">Hace 5 minutos</p></a>
+                                <a href="#" class="block p-3 hover:bg-gray-50 dark:hover:bg-gray-700"><p class="text-sm text-default">Recordatorio: <span class="font-bold">Reunión de equipo</span> mañana a las 10 AM.</p><p class="text-xs text-muted">Hace 1 hora</p></a>
+                            </div>
+                            <div class="p-2 text-center border-t border-gray-200 dark:border-gray-700"><a href="{% url 'intranet_core:notificaciones_page' %}" class="text-sm text-main-primary hover:underline nav-link">Ver todas</a></div>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <button id="user-menu-button" class="flex items-center space-x-2 focus:outline-none">
+                            <img src="{% static 'images/default_avatar.png' %}" alt="Avatar Usuario" class="w-9 h-9 rounded-full border-2 border-gray-300 hover:border-main-primary transition-colors">
+                            <span class="text-sm font-medium text-default hidden md:block">{% if user.is_authenticated %}{{ user.get_full_name|default:user.username }}{% else %}Invitado{% endif %}</span>
+                            <i class="fas fa-chevron-down text-xs text-default opacity-70"></i>
+                        </button>
+                        <div id="user-menu" class="hidden absolute right-0 mt-2 w-56 bg-card rounded-md shadow-xl py-1 z-50 border border-gray-200 dark:border-gray-700">
+                            {% if user.is_authenticated %}
+                                <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700"><p class="text-sm font-semibold text-main-primary">{{ user.get_full_name|default:user.username }}</p><p class="text-xs text-muted">{{ user.email|default:"-" }}</p></div>
+                                <a href="{% url 'intranet_core:perfil' %}" class="block px-4 py-2 text-sm text-default hover:bg-main-primary hover:text-main-white transition-colors">Mi Perfil</a>
+                                <a href="{% url 'intranet_core:configuracion' %}" class="block px-4 py-2 text-sm text-default hover:bg-main-primary hover:text-main-white transition-colors">Configuración</a>
+                                <hr class="my-1 border-gray-200 dark:border-gray-700">
+                                <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit" id="logout-button" class="w-full text-left block px-4 py-2 text-sm text-main-secondary hover:bg-main-secondary hover:text-main-white transition-colors">Cerrar Sesión</button></form>
+                            {% else %}
+                                 <a href="{% url 'login' %}" class="block px-4 py-2 text-sm text-main-primary hover:bg-main-primary hover:text-main-white transition-colors">Iniciar Sesión</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <main class="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-6 lg:p-8">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+    <script src="{% static 'js/intranet_scripts.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
